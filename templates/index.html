@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interview Data</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+  <div class="w-full max-w-5xl mx-auto bg-white shadow-md rounded-lg p-6">
+    <div class="flex justify-between items-center mb-4">
+      <h1 class="text-2xl font-bold text-gray-800">Session Data Interview</h1>
+      <div class="space-x-2">
+        <!-- Button to open Add Data modal -->
+        <button onclick="openModalAdd()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded shadow">
+          + Add Data
+        </button>
+        <!-- Button to delete all data -->
+        <form action="{{ url_for('delete_all_data') }}" method="POST" class="inline-block">
+          <button
+            type="submit"
+            class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded shadow"
+            onclick="return confirm('Are you sure want to delete all data?')">
+            Delete All Data
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="relative w-full mb-4">
+      <label for="search" class="sr-only">Search</label>
+      <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5 text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zM21 21l-4.35-4.35"
+          />
+        </svg>
+      </div>
+      <input
+        type="text"
+        id="search"
+        placeholder="Search..."
+        class="w-full px-10 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+        oninput="searchData()"
+      >
+    </div>
+
+    <!-- Responsive Table -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full bg-white border rounded-lg">
+        <thead class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+          <tr>
+            <th class="py-3 px-6 text-left">ID</th>
+            <th class="py-3 px-6 text-left">Name</th>
+            <th class="py-3 px-6 text-left">Phone Number</th>
+            <th class="py-3 px-6 text-left">Date</th>
+            <th class="py-3 px-6 text-center">Action</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+            {% for row in data %}
+            <tr class="border-b hover:bg-gray-100">
+              <td class="py-3 px-6">{{ row['id'] }}</td>
+              <td class="py-3 px-6">{{ row['name'] }}</td>
+              <td class="py-3 px-6">{{ row['phone'] }}</td>
+              <td class="py-3 px-6">{{ row['date'] }}</td>
+              <td class="py-3 px-6 text-center">
+                <!-- Edit Button -->
+                <button onclick="openModalEdit({{ row['id'] }}, '{{ row['name'] }}', '{{ row['phone'] }}', '{{ row['date'] }}')"      class="bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded shadow">
+                  Edit
+                </button>
+                <!-- Delete Button -->
+                <form action="{{ url_for('delete_data', id=row.id) }}" method="post" class="inline-block">
+                  <button type="submit" class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded shadow" onclick="return confirm('Are you sure?')">
+                    Delete
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal for Add Data -->
+  <div id="addDataModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center hidden">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+      <h2 class="text-xl font-semibold mb-4">Add Data</h2>
+      <form action="{{ url_for('add_data') }}" method="post">
+        <div class="mb-4">
+          <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+          <input
+            type="text"
+            name="name"
+            id="name"
+            placeholder="Input your name"
+            class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+            required
+          >
+        </div>
+        <div class="mb-4">
+          <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
+          <input
+            type="number"
+            name="phone"
+            id="phone"
+            placeholder="Enter your number"
+            class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+            required
+          >
+        </div>
+        <div class="mb-4">
+          <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
+          <input
+            type="date"
+            name="date"
+            id="date"
+            class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+            required
+          >
+        </div>
+        <div class="flex justify-end space-x-4">
+          <button
+            type="submit"
+            class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded shadow">
+            Add
+          </button>
+          <button
+            type="button"
+            onclick="closeModalAdd()"
+            class="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded shadow">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal for Edit Data -->
+  <div id="editDataModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center hidden">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+      <h2 class="text-xl font-semibold mb-4">Edit Data</h2>
+      <form method="POST" id="editDataForm">
+        <input type="hidden" name="id_edit" id="id_edit">
+        <div class="mb-4">
+          <label for="name_edit" class="block text-sm font-medium text-gray-700">Name</label>
+          <input
+            type="text"
+            name="name"
+            id="name_edit"
+            class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+            required
+          >
+        </div>
+        <div class="mb-4">
+          <label for="phone_edit" class="block text-sm font-medium text-gray-700">Phone Number</label>
+          <input
+            type="number"
+            name="phone"
+            id="phone_edit"
+            class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+            required
+          >
+        </div>
+        <div class="mb-4">
+          <label for="date_edit" class="block text-sm font-medium text-gray-700">Date</label>
+          <input
+            type="date"
+            name="date"
+            id="date_edit"
+            class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+            required
+          >
+        </div>
+        <div class="flex justify-end space-x-4">
+          <button
+            type="submit"
+            class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded shadow">
+            Save
+          </button>
+          <button
+            type="button"
+            onclick="closeModalEdit()"
+            class="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded shadow">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openModalAdd() {
+      document.getElementById("addDataModal").classList.remove("hidden");
+    }
+
+    function closeModalAdd() {
+      document.getElementById("addDataModal").classList.add("hidden");
+    }
+
+    function openModalEdit(id, name, phone, date) {
+      document.getElementById("id_edit").value = id;
+      document.getElementById("name_edit").value = name;
+      document.getElementById("phone_edit").value = phone;
+      document.getElementById("date_edit").value = date;
+
+      const editForm = document.getElementById("editDataForm");
+      editForm.action = `/edit/${id}`;
+
+      document.getElementById("editDataModal").classList.remove("hidden");
+    }
+
+    function closeModalEdit() {
+      document.getElementById("editDataModal").classList.add("hidden");
+    }
+
+    function searchData() {
+    const query = document.getElementById("search").value;
+
+    fetch(`/search?query=${encodeURIComponent(query)}`)
+      .then((response) => response.json())
+      .then((data) => {
+        const tableBody = document.getElementById("tableBody");
+        tableBody.innerHTML = "";
+
+        data.forEach((row) => {
+          const tr = document.createElement("tr");
+          tr.classList.add("border-b", "hover:bg-gray-100");
+
+          tr.innerHTML = `
+            <td class="py-3 px-6">${row.id}</td>
+            <td class="py-3 px-6">${row.name}</td>
+            <td class="py-3 px-6">${row.phone}</td>
+            <td class="py-3 px-6">${row.date}</td>
+            <td class="py-3 px-6 text-center">
+              <!-- Edit Button -->
+              <button onclick="openModalEdit(${row.id}, '${row.name}', '${row.phone}', '${row.date}')"
+                class="bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded shadow">
+                Edit
+              </button>
+              <!-- Delete Button -->
+              <form action="/delete/${row.id}" method="post" class="inline-block">
+                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded shadow"
+                  onclick="return confirm('Are you sure?')">
+                  Delete
+                </button>
+              </form>
+            </td>
+          `;
+
+          tableBody.appendChild(tr);
+        });
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+    }
+  </script>
+
+</body>
+</html>
