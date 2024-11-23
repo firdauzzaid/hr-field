@@ -1,16 +1,22 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 
+import os
 import pymysql
 import pymysql.cursors
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
 
+app.config['MYSQL_HOST'] = "Firdauz.mysql.pythonanywhere-services.com"
+app.config['MYSQL_USER'] = "Firdauz"
+app.config['MYSQL_PASSWORD'] = "user_admin"
+app.config['MYSQL_DB'] = "Firdauz$calon_karyawan"
+
 db_config = {
-    "host": "localhost",
-    "user": "root",
-    "password": "",
-    "database": "interview",
+    "host": app.config['MYSQL_HOST'],
+    "user": app.config['MYSQL_USER'],
+    "password": app.config['MYSQL_PASSWORD'],
+    "database": app.config['MYSQL_DB'],
     "cursorclass": pymysql.cursors.DictCursor
 }
 
