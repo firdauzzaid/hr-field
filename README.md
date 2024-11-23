@@ -11,5 +11,5 @@ Using flask as a python framework for web development and PyMySQL library as Res
 
 ## Documentation
 
-[Documentation](/images/Table%20CRUD.png)
+![App ScreenShoot](/images/Table%20CRUD.png)
 
