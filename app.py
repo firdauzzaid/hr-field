@@ -7,16 +7,26 @@ import pymysql.cursors
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
 
-app.config['MYSQL_HOST'] = "Firdauz.mysql.pythonanywhere-services.com"
-app.config['MYSQL_USER'] = "Firdauz"
-app.config['MYSQL_PASSWORD'] = "user_admin"
-app.config['MYSQL_DB'] = "Firdauz$calon_karyawan"
+# /** Setting for web deployment **\
+# app.config['MYSQL_HOST'] = "Firdauz.mysql.pythonanywhere-services.com"
+# app.config['MYSQL_USER'] = "Firdauz"
+# app.config['MYSQL_PASSWORD'] = "user_admin"
+# app.config['MYSQL_DB'] = "Firdauz$calon_karyawan"
+#
+# db_config = {
+#     "host": app.config['MYSQL_HOST'],
+#     "user": app.config['MYSQL_USER'],
+#     "password": app.config['MYSQL_PASSWORD'],
+#     "database": app.config['MYSQL_DB'],
+#     "cursorclass": pymysql.cursors.DictCursor
+# }
 
+# /** For Development Production **\
 db_config = {
-    "host": app.config['MYSQL_HOST'],
-    "user": app.config['MYSQL_USER'],
-    "password": app.config['MYSQL_PASSWORD'],
-    "database": app.config['MYSQL_DB'],
+    "host": "localhost",
+    "user": "root",
+    "password": "",
+    "database": "interview",
     "cursorclass": pymysql.cursors.DictCursor
 }
 
@@ -51,14 +61,19 @@ def search():
                 if query:
                     search_query = f"%{query}%"
                     sql = """
-                    SELECT * FROM calon_karyawan
+                    SELECT id, name, phone, date 
+                    FROM calon_karyawan
                     WHERE name LIKE %s OR phone LIKE %s OR date LIKE %s
                     """
                     cursor.execute(sql, (search_query, search_query, search_query))
                 else:
-                    cursor.execute("SELECT * FROM calon_karyawan")
+                    cursor.execute("SELECT id, name, phone, date FROM calon_karyawan")
 
-                data = cursor.fetchall()
+                raw_data = cursor.fetchall()
+
+                for row in raw_data:
+                    row['date'] = row['date'].strftime('%Y-%m-%d') if row['date'] else None
+                    data.append(row)
 
     except Exception as e:
         print(f"Error: {e}")

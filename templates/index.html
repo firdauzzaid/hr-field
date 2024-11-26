@@ -1,31 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Interview Data</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
 
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
   <div class="w-full max-w-5xl mx-auto bg-white shadow-md rounded-lg p-6">
     <div class="flex justify-between items-center mb-4">
       <h1 class="text-2xl font-bold text-gray-800">Session Data Interview</h1>
-      <div class="space-x-2">
-        <!-- Button to open Add Data modal -->
-        <button onclick="openModalAdd()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded shadow">
-          + Add Data
-        </button>
-        <!-- Button to delete all data -->
-        <form action="{{ url_for('delete_all_data') }}" method="POST" class="inline-block">
-          <button
-            type="submit"
-            class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded shadow"
-            onclick="return confirm('Are you sure want to delete all data?')">
-            Delete All Data
-          </button>
-        </form>
-      </div>
+        <div class="space-x-2 flex-wrap justify-end">
+
+            <!-- Button to open Add Data modal -->
+            <button onclick="openModalAdd()"
+                    class="text-blue-500 hover:text-blue-600 text-2xl">
+              <i class="fas fa-plus"></i>
+            </button>
+
+            <!-- Button to delete all data -->
+            <form action="{{ url_for('delete_all_data') }}" method="POST" class="inline-block">
+              <button
+                type="submit"
+                class="text-red-500 hover:text-red-600 text-2xl"
+                onclick="return confirm('Are you sure want to delete all data?')">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </form>
+
+            <!-- Button to print guest list -->
+            <button onclick="printInterviewList()"
+                    class="text-green-500 hover:text-green-600 text-2xl">
+              <i class="fas fa-print"></i>
+            </button>
+        </div>
     </div>
 
     <!-- Search -->
@@ -59,7 +70,7 @@
     <!-- Responsive Table -->
     <div class="overflow-x-auto">
       <table class="min-w-full bg-white border rounded-lg">
-        <thead class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+        <thead class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal hidden sm:table-header-group">
           <tr>
             <th class="py-3 px-6 text-left">ID</th>
             <th class="py-3 px-6 text-left">Name</th>
@@ -69,26 +80,29 @@
           </tr>
         </thead>
         <tbody id="tableBody">
-            {% for row in data %}
-            <tr class="border-b hover:bg-gray-100">
+        {% for row in data %}
+            <tr class="border-b hover:bg-gray-100 sm:table-row flex flex-col sm:flex-row">
               <td class="py-3 px-6">{{ row['id'] }}</td>
               <td class="py-3 px-6">{{ row['name'] }}</td>
               <td class="py-3 px-6">{{ row['phone'] }}</td>
               <td class="py-3 px-6">{{ row['date'] }}</td>
               <td class="py-3 px-6 text-center">
                 <!-- Edit Button -->
-                <button onclick="openModalEdit({{ row['id'] }}, '{{ row['name'] }}', '{{ row['phone'] }}', '{{ row['date'] }}')"      class="bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded shadow">
-                  Edit
-                </button>
-                <!-- Delete Button -->
+                <button onclick="openModalEdit({{ row['id'] }}, '{{ row['name'] }}', '{{ row['phone'] }}', '{{ row['date'] }}')"
+                        class="text-blue-500 hover:text-blue-600">
+                  <i class="fas fa-edit"></i>
+
+                  <!-- Delete Button -->
                 <form action="{{ url_for('delete_data', id=row.id) }}" method="post" class="inline-block">
-                  <button type="submit" class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded shadow" onclick="return confirm('Are you sure?')">
-                    Delete
+                  <button type="submit"
+                          class="text-red-500 hover:text-red-600"
+                          onclick="return confirm('Are you sure?')">
+                    <i class="fas fa-trash-alt"></i>
                   </button>
                 </form>
               </td>
             </tr>
-            {% endfor %}
+        {% endfor %}
         </tbody>
       </table>
     </div>
@@ -96,7 +110,7 @@
 
   <!-- Modal for Add Data -->
   <div id="addDataModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center hidden">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-96 max-w-full">
       <h2 class="text-xl font-semibold mb-4">Add Data</h2>
       <form action="{{ url_for('add_data') }}" method="post">
         <div class="mb-4">
@@ -150,7 +164,7 @@
 
   <!-- Modal for Edit Data -->
   <div id="editDataModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center hidden">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-96 max-w-full">
       <h2 class="text-xl font-semibold mb-4">Edit Data</h2>
       <form method="POST" id="editDataForm">
         <input type="hidden" name="id_edit" id="id_edit">
@@ -202,34 +216,46 @@
   </div>
 
   <script>
-    function openModalAdd() {
+     <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        document.addEventListener("DOMContentLoaded", function () {
+          {% for category, message in messages %}
+            alert("{{ message }}");
+          {% endfor %}
+        });
+    {% endif %}
+  {% endwith %}
+
+
+  function openModalAdd() {
       document.getElementById("addDataModal").classList.remove("hidden");
-    }
+  }
 
-    function closeModalAdd() {
-      document.getElementById("addDataModal").classList.add("hidden");
-    }
+  function closeModalAdd() {
+    document.getElementById("addDataModal").classList.add("hidden");
+  }
 
-    function openModalEdit(id, name, phone, date) {
-      document.getElementById("id_edit").value = id;
-      document.getElementById("name_edit").value = name;
-      document.getElementById("phone_edit").value = phone;
-      document.getElementById("date_edit").value = date;
+  function openModalEdit(id, name, phone, date) {
+    document.getElementById("id_edit").value = id;
+    document.getElementById("name_edit").value = name;
+    document.getElementById("phone_edit").value = phone;
+    document.getElementById("date_edit").value = date;
 
-      const editForm = document.getElementById("editDataForm");
-      editForm.action = `/edit/${id}`;
+    const editForm = document.getElementById("editDataForm");
+    editForm.action = `/edit/${id}`;
 
-      document.getElementById("editDataModal").classList.remove("hidden");
-    }
+    document.getElementById("editDataModal").classList.remove("hidden");
+  }
 
-    function closeModalEdit() {
-      document.getElementById("editDataModal").classList.add("hidden");
-    }
+  function closeModalEdit() {
+    document.getElementById("editDataModal").classList.add("hidden");
+  }
 
-    function searchData() {
-    const query = document.getElementById("search").value;
+  function searchData() {
+  const query = document.getElementById("search").value;
 
-    fetch(`/search?query=${encodeURIComponent(query)}`)
+  fetch(`/search?query=${encodeURIComponent(query)}`)
       .then((response) => response.json())
       .then((data) => {
         const tableBody = document.getElementById("tableBody");
@@ -263,10 +289,74 @@
           tableBody.appendChild(tr);
         });
       })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
-    }
+    .catch((error) => {
+      console.error("Error fetching data:", error);
+    });
+  }
+  </script>
+
+  <script>
+  function printInterviewList() {
+    const printContent = `
+      <h1 style="text-align: center; margin-bottom: 20px;">Guest List for Interviews</h1>
+      <table style="width: 100%; border-collapse: collapse; text-align: left;" border="1">
+        <thead>
+          <tr>
+            <th style="padding: 8px; text-align: center;">No</th>
+            <th style="padding: 8px;">Name</th>
+            <th style="padding: 8px;">Position Applied</th>
+            <th style="padding: 8px;">Date</th>
+            <th style="padding: 8px; text-align: center;">Signature</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${Array(22).fill(`
+            <tr>
+              <td style="padding: 10px; text-align: center;">&nbsp;</td>
+              <td style="padding: 10px;">&nbsp;</td>
+              <td style="padding: 10px;">&nbsp;</td>
+              <td style="padding: 10px;">&nbsp;</td>
+              <td style="padding: 10px;">&nbsp;</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Guest List Template</title>
+          <style>
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 20px;
+            }
+            th, td {
+              border: 1px solid black;
+              padding: 8px;
+              text-align: left;
+            }
+            th {
+              background-color: #f2f2f2;
+              text-align: center;
+            }
+            body {
+              font-family: Arial, sans-serif;
+              margin: 20px;
+            }
+          </style>
+        </head>
+        <body>
+          ${printContent}
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+  }
   </script>
 
 </body>

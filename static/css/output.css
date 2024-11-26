@@ -355,6 +355,15 @@ input:where([type='submit']) {
   /* 2 */
 }
 
+/* Size Button */
+.action-buttons button i {
+  font-size: 18px;
+}
+.action-buttons button {
+  padding: 8px;
+}
+
+
 /*
 Use the modern Firefox focus style for all focusable elements.
 */
