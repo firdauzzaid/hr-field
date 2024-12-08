@@ -1,14 +1,11 @@
 document.addEventListener("DOMContentLoaded", function () {
-  <!-- Flash Messages -->
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        document.addEventListener("DOMContentLoaded", function () {
-          {% for category, message in messages %}
-            alert("{{ message }}");
-          {% endfor %}
-        });
-    {% endif %}
-  {% endwith %}
+  {{ with messages = get_flashed_messages(with_categories=true) }}
+    {{ for category, message in messages }}
+      alert("{{ message | tojson }}");
+    {{ endfor }}
+  {{ endwith }}
+});
+
 
   function openModalAdd() {
       document.getElementById("addDataModal").classList.remove("hidden");
@@ -137,4 +134,3 @@ document.addEventListener("DOMContentLoaded", function () {
     printWindow.document.close();
     printWindow.print();
   }
-});

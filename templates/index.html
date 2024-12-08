@@ -216,7 +216,6 @@
   </div>
 
   <script>
-     <!-- Flash Messages -->
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
         document.addEventListener("DOMContentLoaded", function () {
@@ -226,8 +225,9 @@
         });
     {% endif %}
   {% endwith %}
-
-
+  </script>
+  
+  <script>
   function openModalAdd() {
       document.getElementById("addDataModal").classList.remove("hidden");
   }
@@ -273,14 +273,14 @@
             <td class="py-3 px-6 text-center">
               <!-- Edit Button -->
               <button onclick="openModalEdit(${row.id}, '${row.name}', '${row.phone}', '${row.date}')"
-                class="bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded shadow">
-                Edit
+                class="text-blue-500 hover:text-blue-600">
+                  <i class="fas fa-edit"></i>
               </button>
               <!-- Delete Button -->
               <form action="/delete/${row.id}" method="post" class="inline-block">
-                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded shadow"
-                  onclick="return confirm('Are you sure?')">
-                  Delete
+                <button type="submit"
+                        class="text-red-500 hover:text-red-600"
+                        onclick="return confirm('Are you sure?')"><i class="fas fa-trash-alt"></i>
                 </button>
               </form>
             </td>
